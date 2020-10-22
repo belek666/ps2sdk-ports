@@ -1,10 +1,10 @@
-.PHONY: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay ode romfs sdl sdlgfx sdlimage sdlmixer sdlttf stlport ucl
+.PHONY: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay ode romfs sdl sdlgfx sdlimage sdlmixer sdlttf stlport ucl xz
 
 ifneq ("$(wildcard $(GSKIT)/include/gsKit.h)","")
-all: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay romfs sdl sdlgfx sdlimage sdlmixer sdlttf stlport ucl
+all: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay romfs sdl sdlgfx sdlimage sdlmixer sdlttf stlport ucl xz
 # ode
 else
-all: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay romfs stlport ucl
+all: submodules aalib expat freetype2 libconfig libid3tag zlib libjpeg libmad libmikmod libpng libtap libtiff lua madplay romfs stlport ucl xz
 # ode
 	@echo "GSKIT not set and gsKit not installed.\nSDL libraries were not built."
 endif
@@ -138,6 +138,17 @@ ucl:
 	$(MAKE) -C $@
 	$(MAKE) -C $@ install
 	$(MAKE) -C $@ clean
+
+XZ_FLAGS = --host=mips64el --enable-static=true --enable-shared=false --disable-xz --disable-xzdec --disable-lzmadec
+XZ_FLAGS += --disable-lzmainfo --disable-lzma-links --disable-scripts --disable-doc --enable-threads=no
+XZ_FLAGS += CC=ee-gcc AR=ee-ar STRIP=ee-strip RANLIB=ee-ranlib 
+XZ_FLAGS += CFLAGS="-O2 -G0 -D__INTERIX" CPPFLAGS="-I$(PS2SDK)/ee/include -I$(PS2SDK)/common/include -I$(PS2SDK)/ports/include" 
+XZ_FLAGS += LDFLAGS="-L$(PS2SDK)/ee/lib -L$(PS2SDK)/ports/lib" --prefix=$(PS2SDK)/ports
+xz:
+	cd $@ && ./autogen.sh && ./configure $(XZ_FLAGS)
+	$(MAKE) -C $@ clean
+	$(MAKE) -C $@ all
+	$(MAKE) -C $@ install
 
 sample:
 	$(MAKE) -C aalib sample
